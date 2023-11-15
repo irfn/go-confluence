@@ -2,7 +2,7 @@ package confluence
 
 import (
 	"encoding/json"
-	"net/http"
+	"io"
 	"net/url"
 	"strings"
 )
@@ -47,18 +47,20 @@ func (w *Wiki) Search(cql, cqlContext string, expand []string, limit int) (*Sear
 	data.Set("cql", cql)
 	searchEndPoint.RawQuery = data.Encode()
 
-	req, err := http.NewRequest("GET", searchEndPoint.String(), nil)
+	res, err := w.client.Get(searchEndPoint.String())
 	if err != nil {
 		return nil, err
-
 	}
-	res, err := w.sendRequest(req)
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var results SearchResults
-	err = json.Unmarshal(res, &results)
+
+	err = json.Unmarshal(body, &results)
 	if err != nil {
 		return nil, err
 	}
