@@ -1,1 +1,1 @@
-module github.com/jesselang/go-confluence
+module github.com/irfn/go-confluence
